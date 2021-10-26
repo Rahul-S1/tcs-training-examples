@@ -9,6 +9,7 @@ import com.tcs.dao.AccountRepository;
 import com.tcs.entity.Account;
 import com.tcs.exceptions.AccountNotFoundExpection;
 import com.tcs.exceptions.InsufficientBalanceException;
+import com.tcs.exceptions.PasswordMismatchException;
 
 
 
@@ -26,12 +27,28 @@ public class AccountServiceImpl implements AccountService {
 	}
 
 	@Override
-	public Account fetchAccountByAccountNumber(int accountnumber) throws AccountNotFoundExpection {
+	public Account fetchAccountByAccountNumber(int accountnumber)throws AccountNotFoundExpection
+	{
+		Account ac = dao.findById(accountnumber).orElse(null);
+		if(ac==null)
+		{
+			throw new AccountNotFoundExpection("Account with an Account no "+accountnumber+" is not found");
+		}
+		return ac;
+		
+	}
+	@Override
+	public Account fetchAccountByAccountNumberAndPass(int accountnumber,String pass) throws AccountNotFoundExpection , PasswordMismatchException
+	{
 		
 		Account ac = dao.findById(accountnumber).orElse(null);
 		if(ac==null)
 		{
 			throw new AccountNotFoundExpection("Account with an Account no "+accountnumber+" is not found");
+		}
+		else if(!ac.getPassword().equals(pass))
+		{
+			throw new AccountNotFoundExpection("Password mismatch");
 		}
 		return ac;
 	}
@@ -51,8 +68,8 @@ public class AccountServiceImpl implements AccountService {
 		double b1 = ac.getBalance();
 		double b2 = toac.getBalance();
 		
-	ac.setBalance(b1-amount);
-	toac.setBalance(b2+amount);
+			ac.setBalance(b1-amount);
+			toac.setBalance(b2+amount);
 		
 		
 	}

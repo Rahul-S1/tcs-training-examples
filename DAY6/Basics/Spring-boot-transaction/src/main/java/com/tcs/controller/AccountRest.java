@@ -16,6 +16,7 @@ import com.tcs.entity.Account;
 import com.tcs.entity.CustomResponce;
 import com.tcs.exceptions.AccountNotFoundExpection;
 import com.tcs.exceptions.InsufficientBalanceException;
+import com.tcs.exceptions.PasswordMismatchException;
 import com.tcs.service.AccountService;
 
 @RestController
@@ -46,6 +47,27 @@ public class AccountRest
 		}
 		return response;
 	}
+	@GetMapping(path = "{id}/{pwd}", produces = MediaType.APPLICATION_JSON_VALUE)
+	public ResponseEntity<Object> findaccount(@PathVariable("id") int accountno,@PathVariable("pwd") String password) {
+		ResponseEntity<Object> response = null;
+		try {
+			Account account = service.fetchAccountByAccountNumberAndPass(accountno,password);
+			response = ResponseEntity.status(HttpStatus.OK).body(account);
+		}catch(AccountNotFoundExpection e)
+		{
+			CustomResponce data = new CustomResponce();
+			data.setMsg(e.getMessage());
+			response = ResponseEntity.status(HttpStatus.NOT_FOUND).body(data);
+		}
+			catch(PasswordMismatchException e) {
+			CustomResponce data = new CustomResponce();
+			data.setMsg(e.getMessage());
+			response = ResponseEntity.status(HttpStatus.NOT_FOUND).body(data);
+	}
+		return response;
+	}
+
+		
 	
 	@PutMapping(path = "{ac1}/{ac2}/{amount}", produces = MediaType.APPLICATION_JSON_VALUE)
 	public ResponseEntity<Object> transfermoney(@PathVariable("ac1") int ac1, @PathVariable("ac2") int ac2,@PathVariable("amount") double amount )
